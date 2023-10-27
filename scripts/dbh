@@ -143,7 +143,7 @@ select_table() {
 select_command() {
 	local v REPLY PS3 sx
 	sx=$(mysql --defaults-file=$Profile --no-auto-rehash \
-						-Nse "SELECT count(*) FROM $Database.$DataTable")  || perror $?
+						-Nse "SELECT count(*) FROM \`$Database\`.\`$DataTable\`")  || perror $?
 	msg -n "[$sx] rows in [$Database.$DataTable]"
 	msg.prefix.set ++ "$Database:$DataTable"
 	PS3="$(msg.prefix.set)Select Command: "
@@ -170,7 +170,12 @@ select_command() {
 
 do_show_structure() { do_structure "$@"; }
 do_structure() {
-	mysql --defaults-file=$Profile --prompt="$(msg.prefix.set)" --no-auto-rehash  "$Database" -e "show columns from $DataTable" || perror $?
+	mysql --defaults-file=$Profile \
+				--prompt="$(msg.prefix.set)" \
+				--no-auto-rehash  \
+				"$Database" \
+				-e "show columns from \`$DataTable\`" \
+						|| perror $?
 	return 0
 }
 
@@ -212,7 +217,7 @@ do_select_fields() {
 		PS3="$(msg.prefix.set)LIMIT: "
 		read -i "$mlimit" -e -r -p "$PS3" mlimit
 		[[ $mselect == 'q' ]] && exit 0; [[ -z $mselect || $mselect == '0' ]] && break
-		(	selectstr="SELECT $mselect FROM $DataTable 								\
+		(	selectstr="SELECT $mselect FROM \`$DataTable\` 								\
 								$([[ -n $mwhere ]] && echo "WHERE $mwhere") 		\
 								$([[ -n $morder ]] && echo "ORDER BY $morder")  \
 								$([[ -n $mlimit ]] && echo "LIMIT $mlimit")"

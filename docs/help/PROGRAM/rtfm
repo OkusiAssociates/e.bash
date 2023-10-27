@@ -6,7 +6,7 @@
           :  then
           :      /usr/bin/man
           :  then
-          :      /lib/include/e.bash/e.help
+          :      /usr/lib/include/e.bash/e.help
           :  then
           :      /usr/bin/info.
           : 

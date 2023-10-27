@@ -352,14 +352,14 @@ declare -fx 'msg' 'msg.die' 'msg.emerg' 'msg.alert' 'msg.crit' 'msg.err' 'msg.wa
 if (( ! ${LOG_ALERT:-0} )); then
 	declare -xr		_PATH_LOG='/dev/log'
 	# priorities (these are ordered)
-	declare -ixr	LOG_EMERG=0		# system is unusable 
-	declare -ixr	LOG_ALERT=1		# action must be taken immediately 
-	declare -ixr	LOG_CRIT=2		# critical conditions 
-	declare -ixr	LOG_ERR=3			# error conditions 
-	declare -ixr	LOG_WARNING=4	# warning conditions 
-	declare -ixr	LOG_NOTICE=5	# normal but significant condition 
-	declare -ixr	LOG_INFO=6		# informational 
-	declare -ixr	LOG_DEBUG=7		# debug-level messages 
+	declare -ix	LOG_EMERG=0		# system is unusable 
+	declare -ix	LOG_ALERT=1		# action must be taken immediately 
+	declare -ix	LOG_CRIT=2		# critical conditions 
+	declare -ix	LOG_ERR=3			# error conditions 
+	declare -ix	LOG_WARNING=4	# warning conditions 
+	declare -ix	LOG_NOTICE=5	# normal but significant condition 
+	declare -ix	LOG_INFO=6		# informational 
+	declare -ix	LOG_DEBUG=7		# debug-level messages 
 	declare -xr		LOG_PRIORITYNAMES='emerg alert crit err warning notice info debug'
 fi
 
