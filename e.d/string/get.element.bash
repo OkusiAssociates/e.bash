@@ -1,7 +1,7 @@
 #!/bin/bash
 #!shellcheck disable=SC0000
 #@ Function: get.element get.elements
-#@ Desc    : Return and element enclosed within two deliminter patterns.
+#@ Desc    : Return an element enclosed within two deliminter patterns.
 #@ Synopsis: get.element haystack pattern1 pattern2 [offset]
 #@         : get.elements haystack pattern1 pattern2 [offset]
 #@:
@@ -21,29 +21,29 @@
 #@:
 #@ See Also: strpos strrpos
 get.elements() {
- 	local str=${1:${4:-0}} 
+ 	local -- str=${1:${4:-0}} 
 	(($# < 3)) && return 1 
 	while [[ -n $str ]]; do
-		[[ $str != *"${2}"* ]] && break
-	 	str="${str#*${2}}"
-		[[ $str != *"${3}"* ]] && break
-		echo "${str%%${3}*}"
-		str=${str#*${3}}
+		[[ $str != *"$2"* ]] && break
+	 	str="${str#*"$2"}"
+		[[ $str != *"$3"* ]] && break
+		echo "${str%%"$3"*}"
+		str=${str#*"$3"}
 	done
 	return 0
 }
-declare -fx get.elements
+declare -fx 'get.elements'
 
 get.element() {
- 	local str=${1:${4:-0}} 
+ 	local -- str=${1:${4:-0}} 
 	if [[ -n $str ]] && (($# > 2)); then
-		if [[ $str == *"${2}"* ]]; then
-		 	str="${str#*${2}}"
-			[[ $str == *"${3}"* ]] && echo "${str%%${3}*}"
+		if [[ $str == *"$2"* ]]; then
+		 	str="${str#*"$2"}"
+			[[ $str == *"$3"* ]] && echo "${str%%"$3"*}"
 		fi
 	fi
 	return 0
 }
-declare -fx get.element
+declare -fx 'get.element'
 
 #fin

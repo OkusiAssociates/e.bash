@@ -527,7 +527,7 @@ e.location() {
 	echo "${ENTITIES@A};${PATH@A}"
 }
 declare -fx e.location
-declare -xg _ent_VERSION='0.998.420.60.omicron-1589'
+declare -xg _ent_VERSION='0.998.420.63.omicron-1627'
 chgConfigVar() {
 	local Profile=${1:-} key
 	shift
@@ -611,14 +611,16 @@ tmpdir.set() {
 	echo "${TMPDIR:-/tmp}"
 }
 declare -fx 'tmpdir.set'
-rmslash2() { echo "${@//+(\/)\//\/}"; }
+rmslash2() {
+	echo "${@//+(\/)\//\/}"
+}
 declare -fx rmslash2
 editorsyntaxstring() {
-	local FileType="${1:-text}"
-	local FileName="${2:-}"
-	local editor
-	editor="${3:-${EDITOR}}"
-	local opt=''
+	local -- FileType="${1:-text}"
+	local -- FileName="${2:-}"
+	local -- editor
+	editor="${3:-${EDITOR:-nano}}"
+	local -- opt=''
 	editor="$(basename "${editor%% *}")"
 	case "$FileType" in
 		html)		FileType='php';;
@@ -627,7 +629,7 @@ editorsyntaxstring() {
 	case "$editor" in
 		joe) 	[[ $FileType == 'text' ]] && FileType='sh'
 					if [[ ! -f "/usr/share/joe/syntax/$FileType.jsf" ]]; then 
-						echo >&2 "joe: Syntax file [$FileType].jsf not found for [$FileName]"
+						>&2 echo "${FUNCNAME[0]}: joe: Syntax file [$FileType].jsf not found for [$FileName]"
 						FileType=text
 						opt=''
 					else
@@ -637,9 +639,9 @@ editorsyntaxstring() {
 		nano)
 					opt="--syntax=$FileType"
 					;;
-		*)		msg.err "Editor [$editor] not found.";;
+		*)		>&2 echo "${FUNCNAME[0]}: Editor [$editor] not found.";;
 	esac
-x	echo "$EDITOR $opt $FileName"
+	echo "$EDITOR $opt $FileName"
 }
 declare -fx editorsyntaxstring
 DefineTextFileTypes() {
@@ -669,8 +671,8 @@ set -e
 	local -i typeonly=0
 	local -- File=''
 	local -- FileType='text'
-	while (( $# )); do
-		testfile="${1}"
+	while(($#)); do
+		testfile="$1"
 		[[ $testfile == '-t' ]] && { typeonly=1; shift; continue; }
 		[[ -d "$testfile" ]] && { shift; continue; }
 		FileType=''
@@ -683,8 +685,9 @@ set -e
 			c|h)				FileType='c';;
 			xml)				FileType='xml';;
 		esac
-		if [[ -z $FileType ]]; then
+		if [[ -z "$FileType" ]]; then
 			if [[ -f "$testfile" ]]; then
+				local -- h
 				h="$( { head -c 64 "$testfile" 2>/dev/null || echo ' '; } | strings -w 2>/dev/null)" || h=''
 				if 	 [[ "$h" =~ ^\#\!.*/bash.* ]];	then	
 					FileType='bash'
@@ -699,12 +702,12 @@ set -e
 					[[ -z $File ]] && File='text'
 					if [[ "${!_ent_TextFileTypes[*]}" == *"$File"* ]]; then
 						FileType="${_ent_TextFileTypes[$File]}"
-						[[ -z $FileType ]] && FileType='text'
+						[[ -z "$FileType" ]] && FileType=text
 					fi
 				fi
 			fi
 		fi
-		[[ -z $FileType ]] && FileType='text'
+		[[ -z "$FileType" ]] && FileType=text
 		if ((typeonly)); then
 			echo "${FileType}"
 		else
@@ -714,6 +717,10 @@ set -e
 	done
 }
 declare -fx textfiletype
+if [[ "${BASH_SOURCE[0]:-}" == "$0" ]]; then
+	set -eu
+	textfiletype "$@"
+fi
 addslashes() {
 	read line; 
 	while [[ "$line" != "" ]]; do 
@@ -724,11 +731,11 @@ addslashes() {
 }
 declare -fx addslashes
 elipstr() {
-	local str=${1:-} pd=''
+	local -- str=${1:-} pd=''
 	str=$(echo "$str" | head -n1)
 	local -i width=${2:-0} 
 	local -i strlen=${#str} sx=0
-	((width)) || width=$(( $(tput cols) - 1 ))
+	((width)) || width=$(( $(tput cols 2>/dev/null || echo '78')-1 ))
 	((width<6)) && width=78
 	((strlen <= width)) && { echo "$str"; return; }
 	sx=$(((width-2) / 2))
@@ -744,31 +751,31 @@ explode() {
 }
 declare -fx explode
 get.elements() {
- 	local str=${1:${4:-0}} 
+ 	local -- str=${1:${4:-0}} 
 	(($# < 3)) && return 1 
 	while [[ -n $str ]]; do
-		[[ $str != *"${2}"* ]] && break
-	 	str="${str#*${2}}"
-		[[ $str != *"${3}"* ]] && break
-		echo "${str%%${3}*}"
-		str=${str#*${3}}
+		[[ $str != *"$2"* ]] && break
+	 	str="${str#*"$2"}"
+		[[ $str != *"$3"* ]] && break
+		echo "${str%%"$3"*}"
+		str=${str#*"$3"}
 	done
 	return 0
 }
-declare -fx get.elements
+declare -fx 'get.elements'
 get.element() {
- 	local str=${1:${4:-0}} 
+ 	local -- str=${1:${4:-0}} 
 	if [[ -n $str ]] && (($# > 2)); then
-		if [[ $str == *"${2}"* ]]; then
-		 	str="${str#*${2}}"
-			[[ $str == *"${3}"* ]] && echo "${str%%${3}*}"
+		if [[ $str == *"$2"* ]]; then
+		 	str="${str#*"$2"}"
+			[[ $str == *"$3"* ]] && echo "${str%%"$3"*}"
 		fi
 	fi
 	return 0
 }
-declare -fx get.element
+declare -fx 'get.element'
 implode() {
-	local x d=','
+	local -- x d=','
 	[[ ${1:-} == '-d' ]] && { shift; d="${1:-,}"; shift; }
 	printf -v x "${d}%s" "$@"
 	echo "${x:1}"
@@ -776,7 +783,7 @@ implode() {
 declare -fx implode
 in_array() { 
 	[[ -z ${2:-} ]] && return 1
-	local pattern match="$1"
+	local -- pattern match="$1"
 	shift
 	for pattern; do [[ $pattern == "$match" ]] && return 0; done
 	return 1
@@ -795,9 +802,13 @@ in_array.loose() {
 	return 1
 }
 declare -fx 'in_array.loose'
-is.number() {	[[ ${1:-} =~ ^[-+]?[0-9.]+$ ]] || return 1; }
+is.number() {
+	[[ ${1:-} =~ ^[-+]?[0-9.]+$ ]] || return 1
+}
 declare -fx 'is.number'
-is.int() {	[[ ${1:-} =~ ^[-+]?[0-9]+$ ]] || return 1; }
+is.int() {
+	[[ ${1:-} =~ ^[-+]?[0-9]+$ ]] || return 1
+}
 declare -fx 'is.int'
 post_slug() {
 	shopt -s extglob
@@ -857,7 +868,7 @@ remsp2() {
 			else
 				trim "${*//+( )/ }"; echo
 			fi
-			return $?
+			return
 		fi
 	fi
 	if ((incblank)); then
@@ -865,20 +876,21 @@ remsp2() {
 	else
 		while read -r; do trim "${REPLY//+( )/ }"; echo; done
 	fi
-	return $?
 }
 declare -fx remsp2
-s() {	(( ${1:-1} == 1 )) || echo -n 's'; }
+s() {
+	(( ${1:-1} == 1 )) || echo -n 's'
+}
 declare -fx s
 strpos() { 
 	local x="${1%%${2//\*/\\*}*}"
-	[[ "$x" == "$1" ]] && echo -1 || echo "${#x}"
+	[[ $x == "$1" ]] && echo -1 || echo "${#x}"
 }
 declare -fx strpos
 strposv() { 
 	local -n Var="$1"
 	local x="${2%%${3//\*/\\*}*}"
-	[[ "$x" == "$2" ]] && Var=-1 || Var=${#x}
+	[[ $x == "$2" ]] && Var=-1 || Var=${#x}
 }
 declare -fx strposv
 strrposv() { 
@@ -899,10 +911,10 @@ str_str() {
 }
 declare -fx str_str
 titlecase() { 
-	(( $# )) || { echo ''; return 0; }
-	[[ -z $* ]] && { echo ''; return 0; } 
+	(($#)) || { echo; return 0; }
+	[[ -z $* ]] && { echo; return 0; } 
 	set ${*,,}
-	echo ${*^}
+	echo "${*^}"
 }
 declare -fx titlecase
 trim() {
@@ -965,7 +977,9 @@ rtrim() {
 	fi
 }
 declare -fx rtrim
-calcfp() { echo "$*" | /usr/bin/bc -l; }
+calcfp() { 
+	echo "$*" |/usr/bin/bc -l
+}
 declare -fx calcfp
 cleanup() {
 	local -i exitcode=$?
@@ -1000,40 +1014,40 @@ exit_if_already_running() {
 }
 declare -fx exit_if_already_running
 hr2int() {
-	local num h fmt
-	while (($#)); do
-		num=${1:-0} 
-		h=${num: -1}
-		if [[ ${h:-} =~ ^[-+]?[0-9.]+$ ]]; then 
-			fmt=si
-		else
-			local LC_ALL=C
-			if [[ "$h" > 'a' ]]; then 
-				fmt=iec
-			else 
-				fmt=si		
-			fi
-		fi
-		numfmt --round=nearest --from="$fmt" "${num^^}" || return 1
-		shift 1
-	done
-	return 0
+  local -- num h fmt
+  while(($#)); do
+    num=${1:-0}
+    h=${num: -1}
+    if [[ ${h:-} =~ ^[-+]?[0-9.]+$ ]]; then
+      fmt=si
+    else
+      local LC_ALL=C
+      if [[ "$h" > 'a' ]]; then
+        fmt=iec
+      else
+        fmt=si
+      fi
+    fi
+    numfmt --round=nearest --from="$fmt" "${num^^}" || return 1
+    shift 1
+  done
+  return 0
 }
 declare -fx hr2int
 int2hr() {
-	local -i num=0
-	local fmt hr
-	while (($#)); do
-		num=$(( ${1:-0} )) || { echo >&2 "Invalid number [$num]"; return 1; }
- 		fmt=${2:-si}
-		fmt=${fmt,,}
-		hr=$(numfmt --round=nearest --to="$fmt" "$num") || { echo >&2 "Invalid hr code [$h]"; return 1; }
-		[[ $fmt == 'iec' ]] && hr="${hr,,}"
-		echo "$hr"
-		shift 1
-		(($#)) && shift 1
-	done
-	return 0	
+  local -i num=0
+  local -- fmt hr
+  while (($#)); do
+    num=$(( ${1:-0} )) || { echo >&2 "Invalid number [$num]"; return 1; }
+    fmt=${2:-si}
+    fmt=${fmt,,}
+    hr=$(numfmt --round=nearest --to="$fmt" "$num") || { echo >&2 "Invalid hr code [$h]"; return 1; }
+    [[ $fmt == 'iec' ]] && hr="${hr,,}"
+    echo "$hr"
+    shift 1
+    (($#)) && shift 1
+  done
+  return 0
 }
 declare -fx int2hr
 is.interactive() {
@@ -1205,7 +1219,9 @@ sshexec() {
 	eval "$ssh" "$@"
 	return $?
 }
-urldecode() { echo -e "$(sed 's/+/ /g;s/%\(..\)/\\x\1/g;')"; }
+urldecode() {
+	echo -e "$(sed 's/+/ /g;s/%\(..\)/\\x\1/g;')"
+}
 declare -fx urldecode
 urlencode() {
 	local LC_ALL=C encoded='' c

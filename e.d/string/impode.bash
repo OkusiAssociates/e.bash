@@ -8,7 +8,7 @@
 #@:
 #@ Example : str=$(implode -d '|' "${files[@]}")
 implode() {
-	local x d=','
+	local -- x d=','
 	[[ ${1:-} == '-d' ]] && { shift; d="${1:-,}"; shift; }
 	printf -v x "${d}%s" "$@"
 	echo "${x:1}"

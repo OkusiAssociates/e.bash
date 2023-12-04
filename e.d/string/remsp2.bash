@@ -24,7 +24,7 @@ remsp2() {
 			else
 				trim "${*//+( )/ }"; echo
 			fi
-			return $?
+			return
 		fi
 	fi
 	if ((incblank)); then
@@ -32,7 +32,6 @@ remsp2() {
 	else
 		while read -r; do trim "${REPLY//+( )/ }"; echo; done
 	fi
-	return $?
 }
 declare -fx remsp2
 #fin

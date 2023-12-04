@@ -8,11 +8,11 @@
 #@:
 #@ Example : elipstr "the quick brown fox jumped over." 15
 elipstr() {
-	local str=${1:-} pd=''
+	local -- str=${1:-} pd=''
 	str=$(echo "$str" | head -n1)
 	local -i width=${2:-0} 
 	local -i strlen=${#str} sx=0
-	((width)) || width=$(( $(tput cols) - 1 ))
+	((width)) || width=$(( $(tput cols 2>/dev/null || echo '78')-1 ))
 	((width<6)) && width=78
 	((strlen <= width)) && { echo "$str"; return; }
 	sx=$(((width-2) / 2))

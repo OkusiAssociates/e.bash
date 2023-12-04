@@ -1,4 +1,5 @@
 #!/bin/bash
+#shellcheck disable=SC2034
 #@ Function: strpos strrpos 
 #@ Desc    : Return position of needle in haystack.
 #@:
@@ -12,7 +13,7 @@ strpos() {
 	#haystack=$1
 	#needle=${2//\*/\\*}
 	local x="${1%%${2//\*/\\*}*}"
-	[[ "$x" == "$1" ]] && echo -1 || echo "${#x}"
+	[[ $x == "$1" ]] && echo -1 || echo "${#x}"
 }
 declare -fx strpos
 
@@ -30,7 +31,7 @@ strposv() {
 	#needle=${3//\*/\\*}
 	local -n Var="$1"
 	local x="${2%%${3//\*/\\*}*}"
-	[[ "$x" == "$2" ]] && Var=-1 || Var=${#x}
+	[[ $x == "$2" ]] && Var=-1 || Var=${#x}
 }
 declare -fx strposv
 

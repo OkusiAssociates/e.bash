@@ -7,6 +7,8 @@
 #@          :   name=${f##/*/}
 #@          :   cat $f | urldecode > /mylogdir/$HOSTNAME.$name
 #@          : done
-urldecode() { echo -e "$(sed 's/+/ /g;s/%\(..\)/\\x\1/g;')"; }
+urldecode() {
+	echo -e "$(sed 's/+/ /g;s/%\(..\)/\\x\1/g;')"
+}
 declare -fx urldecode
 #fin

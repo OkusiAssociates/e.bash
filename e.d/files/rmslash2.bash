@@ -7,6 +7,8 @@
 #@ Example : filename="//123/456///789/0"
 #@         : rmslash2 "$filename" # returns /123/456/789/0
 #@         :
-rmslash2() { echo "${@//+(\/)\//\/}"; }
+rmslash2() {
+	echo "${@//+(\/)\//\/}"
+}
 declare -fx rmslash2
 #fin

@@ -6,6 +6,8 @@
 #@ Example : num=30; echo "$num file$(s $num) counted."
 #@         : num=1;  echo "$num file$(s $num) counted."
 #@:
-s() {	(( ${1:-1} == 1 )) || echo -n 's'; }
+s() {
+	(( ${1:-1} == 1 )) || echo -n 's'
+}
 declare -fx s
 #fin

@@ -11,7 +11,7 @@
 #@:
 in_array() { 
 	[[ -z ${2:-} ]] && return 1
-	local pattern match="$1"
+	local -- pattern match="$1"
 	shift
 	for pattern; do [[ $pattern == "$match" ]] && return 0; done
 	return 1

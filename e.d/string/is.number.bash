@@ -7,7 +7,9 @@
 #@         : is.number "4.20" && echo "$1 is number"  # returns true
 #@         : is.number "4Z20" && echo "$1 is number"  # returns false
 #@         : 
-is.number() {	[[ ${1:-} =~ ^[-+]?[0-9.]+$ ]] || return 1; }
+is.number() {
+	[[ ${1:-} =~ ^[-+]?[0-9.]+$ ]] || return 1
+}
 declare -fx 'is.number'
 
 #@ Function: is.int
@@ -18,6 +20,8 @@ declare -fx 'is.number'
 #@         : is.int "4.20" && echo "is int"  # returns false 
 #@         : is.int "4Z20" && echo "is int"  # returns false
 #@         :
-is.int() {	[[ ${1:-} =~ ^[-+]?[0-9]+$ ]] || return 1; }
+is.int() {
+	[[ ${1:-} =~ ^[-+]?[0-9]+$ ]] || return 1
+}
 declare -fx 'is.int'
 #fin

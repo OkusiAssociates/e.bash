@@ -4,7 +4,7 @@
           :  Bash/php scripts without .sh/.bash/.php extensions are
           :  autodetected from the header.
           : 
-          :  Uses EDITOR (currently '/usr/local/bin/jj ').
+          :  Uses EDITOR (currently '/usr/bin/joe ').
           : 
   Synopsis:  p [Options] filename
           :  Where 'filename' is the file to edit.

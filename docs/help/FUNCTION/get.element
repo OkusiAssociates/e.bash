@@ -1,5 +1,5 @@
   Function:  get.element get.elements
-      Desc:  Return and element enclosed within two deliminter patterns.
+      Desc:  Return an element enclosed within two deliminter patterns.
   Synopsis:  get.element haystack pattern1 pattern2 [offset]
           :  get.elements haystack pattern1 pattern2 [offset]
           : 

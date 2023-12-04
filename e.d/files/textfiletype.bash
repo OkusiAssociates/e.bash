@@ -34,11 +34,11 @@
 #@         : Only editors 'joe' and 'nano' are supported at the moment.
 #@ Usage   : editorsyntaxstring filetype filename
 editorsyntaxstring() {
-	local FileType="${1:-text}"
-	local FileName="${2:-}"
-	local editor
-	editor="${3:-${EDITOR}}"
-	local opt=''
+	local -- FileType="${1:-text}"
+	local -- FileName="${2:-}"
+	local -- editor
+	editor="${3:-${EDITOR:-nano}}"
+	local -- opt=''
 
 	editor="$(basename "${editor%% *}")"
 
@@ -51,7 +51,7 @@ editorsyntaxstring() {
 	case "$editor" in
 		joe) 	[[ $FileType == 'text' ]] && FileType='sh'
 					if [[ ! -f "/usr/share/joe/syntax/$FileType.jsf" ]]; then 
-						echo >&2 "joe: Syntax file [$FileType].jsf not found for [$FileName]"
+						>&2 echo "${FUNCNAME[0]}: joe: Syntax file [$FileType].jsf not found for [$FileName]"
 						FileType=text
 						opt=''
 					else
@@ -61,9 +61,9 @@ editorsyntaxstring() {
 		nano)
 					opt="--syntax=$FileType"
 					;;
-		*)		msg.err "Editor [$editor] not found.";;
+		*)		>&2 echo "${FUNCNAME[0]}: Editor [$editor] not found.";;
 	esac
-x	echo "$EDITOR $opt $FileName"
+	echo "$EDITOR $opt $FileName"
 }
 declare -fx editorsyntaxstring
 
@@ -100,13 +100,12 @@ set -e
 	local -i typeonly=0
 	local -- File=''
 	local -- FileType='text'
-	while (( $# )); do
-		testfile="${1}"
+	while(($#)); do
+		testfile="$1"
 		# for typeonly option 
 		[[ $testfile == '-t' ]] && { typeonly=1; shift; continue; }
 		# why are you giving me a directory?
 		[[ -d "$testfile" ]] && { shift; continue; }
-
 		FileType=''
 		ext=${testfile##*\.}
 		case "$ext" in
@@ -119,10 +118,11 @@ set -e
 		esac
 		
 		# still equals text, so check header, then 'file' command output
-		if [[ -z $FileType ]]; then
+		if [[ -z "$FileType" ]]; then
 			# the file exists therefore examine it.
 			if [[ -f "$testfile" ]]; then
 				# head examination. first 32 chars
+				local -- h
 				h="$( { head -c 64 "$testfile" 2>/dev/null || echo ' '; } | strings -w 2>/dev/null)" || h=''
 				if 	 [[ "$h" =~ ^\#\!.*/bash.* ]];	then	
 					FileType='bash'
@@ -138,13 +138,13 @@ set -e
 					[[ -z $File ]] && File='text'
 					if [[ "${!_ent_TextFileTypes[*]}" == *"$File"* ]]; then
 						FileType="${_ent_TextFileTypes[$File]}"
-						[[ -z $FileType ]] && FileType='text'
+						[[ -z "$FileType" ]] && FileType=text
 					fi
 				fi
 			fi
 		fi
 				
-		[[ -z $FileType ]] && FileType='text'
+		[[ -z "$FileType" ]] && FileType=text
 		if ((typeonly)); then
 			echo "${FileType}"
 		else
@@ -154,4 +154,10 @@ set -e
 	done
 }
 declare -fx textfiletype
+
+if [[ "${BASH_SOURCE[0]:-}" == "$0" ]]; then
+	set -eu
+	textfiletype "$@"
+fi
+
 #fin
