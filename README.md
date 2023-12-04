@@ -1,4 +1,4 @@
-###### Version [0.998.420.64.omicron-1627]
+###### Version [0.998.420.65.omicron-1627]
 # E.bash Environment/Function Library
 
 E.bash is a lightweight Bash scripting environment and library for systems and network administrators who use `Ubuntu 18.04` or higher.
